@@ -270,7 +270,7 @@ class ModelExtensionRetailcrmHistory extends Model {
 
                 $this->createResult['customers'][] = array('id' => $customer['id'], 'externalId' => (int)$customer_id);
             }
-
+			
             $this->orders_history->handleBaseOrderData($data, $order);
             $this->orders_history->handleShipping($data, $order);
             $this->orders_history->handlePayment($data, $order, $corporateAddress);
@@ -278,6 +278,7 @@ class ModelExtensionRetailcrmHistory extends Model {
             $this->orders_history->handleTotals($data, $order);
             $this->orders_history->handleCustomFields($data, $order);
 
+			// -webusis- по хорошему статусы нужно переделывать
             $data['customer_id'] = $customer_id;
             if (array_key_exists($order['status'], $this->status)) {
                 $data['order_status_id'] = $this->status[$order['status']];

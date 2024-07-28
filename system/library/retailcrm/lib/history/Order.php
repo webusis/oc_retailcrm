@@ -129,6 +129,8 @@ class Order {
         if (!empty($order['company'])) {
             $data['payment_company'] = $order['company']['name'];
         }
+		// -webusis- Почтовый индекс
+		$order['delivery']['address']['index'] = isset($order['delivery']['address']['index']) ? $order['delivery']['address']['index'] : '';
 
         if (!empty($customer['address'])) {
             $data['payment_address_1'] = $customer['address']['text'];
@@ -184,7 +186,8 @@ class Order {
         $data['shipping_address_2'] = '';
         $data['shipping_company'] = '';
         $data['shipping_city'] = $order['delivery']['address']['city'];
-        $data['shipping_postcode'] = $order['delivery']['address']['index'];
+		// -webusis- Проверка на почтовый индекс
+        $data['shipping_postcode'] = (isset($order['delivery']['address']['index'])) ? $order['delivery']['address']['index'] : '' ;
 
         if (!isset($data['shipping_code'])) {
             $data['shipping_code'] = $delivery != null
@@ -263,6 +266,7 @@ class Order {
             $product = $this->product_repository->getProduct($product_id);
             $rewards = $this->product_repository->getProductRewards($product_id);
 
+			// -webusis- какое-то непонятное вознагрождение
             $data['order_product'][] = array(
                 'name' => $product['name'],
                 'model' => $product['model'],
@@ -271,7 +275,7 @@ class Order {
                 'product_id' => $product_id,
                 'quantity' => $item['quantity'],
                 'option' => $options,
-                'reward' => $rewards[$data['customer_group_id']]['points'] * $item['quantity']
+                'reward' => isset($rewards[$data['customer_group_id']]['points']) ? $rewards[$data['customer_group_id']]['points'] * $item['quantity'] : 0
             );
         }
     }
@@ -297,6 +301,7 @@ class Order {
         }
 
         $data['total'] = $order['totalSumm'];
+		// -webusis- непонятная сортировка подкчего-то общего
         $data['order_total'] = array(
             array(
                 'order_total_id' => '',
@@ -304,7 +309,7 @@ class Order {
                 'title' => $this->data_repository->getLanguage('product_summ'),
                 'value' => $order['summ'],
                 'text' => $order['summ'],
-                'sort_order' => $subtotal_settings['sub_total_sort_order']
+                'sort_order' => isset($subtotal_settings['sub_total_sort_order']) ? $subtotal_settings['sub_total_sort_order'] : 0
             ),
             array(
                 'order_total_id' => '',
@@ -371,7 +376,7 @@ class Order {
         if (!empty($settings)) {
             $custom_field_setting = array_flip($settings);
         }
-
+		
         if (isset($custom_field_setting) && $order['customFields']) {
             foreach ($order['customFields'] as $code => $value) {
                 if (array_key_exists($code, $custom_field_setting)) {
@@ -379,8 +384,10 @@ class Order {
                     $custom_fields[$field_code] = $value;
                 }
             }
-
+			
+			// -webusis- можно любые добавлять сэтятся по ключу кастом филда
             $data['custom_field'] = isset($custom_fields) ? $custom_fields : '';
+			$data['shipping_custom_field'] = isset($custom_fields) ? $custom_fields : '';
         }
     }
 }
